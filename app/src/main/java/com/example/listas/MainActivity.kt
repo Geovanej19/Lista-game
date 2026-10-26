@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -30,10 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.listas.model.Game
-import com.example.listas.repository.getAllGames
+import com.example.listas.repository.getGamesByStudio
 import com.example.listas.ui.theme.ListasTheme
 
 class MainActivity : ComponentActivity() {
@@ -62,6 +65,10 @@ fun GamesScreen(modifier: Modifier = Modifier) {
         mutableStateOf("")
     }
 
+    var  gamesListByStudio by remember {
+        mutableStateOf(getGamesByStudio(""))
+    }
+
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -81,7 +88,9 @@ fun GamesScreen(modifier: Modifier = Modifier) {
             },
             trailingIcon = {
                 IconButton(
-                    onClick = {}
+                    onClick = {
+                        gamesListByStudio = getGamesByStudio(studio)
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -91,8 +100,14 @@ fun GamesScreen(modifier: Modifier = Modifier) {
             }
         )
 
+        LazyRow() {
+            items(gamesListByStudio){
+                StudioCard(game = it)
+            }
+        }
+
         LazyColumn {
-            items(getAllGames()) {
+            items(gamesListByStudio) {
                 GameCard(it)
             }
         }
@@ -130,6 +145,24 @@ fun GameCard(game: Game){
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Blue
+            )
+        }
+    }
+}
+
+@Composable
+fun StudioCard(game: Game){
+    Card(modifier = Modifier
+        .size(150.dp)
+        .padding(end = 4.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = game.studio,
+                textAlign = TextAlign.Center
             )
         }
     }
